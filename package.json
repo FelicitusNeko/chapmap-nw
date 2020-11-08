@@ -14,6 +14,7 @@
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
     "luxon": "^1.25.0",
+    "music-metadata": "^7.5.0",
     "node-id3": "^0.2.1",
     "nw-react-scripts": "3.4.1",
     "puppeteer": "^5.4.1",
