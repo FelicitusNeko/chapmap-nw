@@ -1,3 +1,4 @@
+import fs, { promises as fsPromises } from 'fs';
 import { format } from 'util';
 import { basename } from 'path';
 
@@ -14,9 +15,6 @@ import Orchestrator from '../../tools/Orchestrator';
 
 import { DataType, SegmentType, SOCANType } from './SquareSymTypes/enums';
 import { ShowData, ShowChapterData, SegmentChapterData, MusicChapterData, CartChapterData, AlternateData } from './SquareSymTypes/interfaces';
-
-const fs = require('fs');
-const fsPromises = fs.promises;
 
 const testOverride = true;
 
@@ -187,11 +185,10 @@ const SquareSymOps: SquareSymOpsType = {
     if (CanConRate < CanConTarget) econsole.warn(`WARNING: CanCon rate is under ${CanConTarget}%; consider changing music`);
 
 
-  },//)().catch(err => { econsole.error(err); process.exit(1); });
+  },
 
   ReaperProcess: async (inputfile: string) => {
     const reaperData = ReaperReader.fromFile(inputfile);
-    //const showDate = moment(basename(inputfile).substr(0, 8), 'YYYYMMDD');
     const showDate = DateTime.fromFormat(basename(inputfile).substr(0, 8), 'yMMdd');
     let retval: ShowData = {
       title: basename(inputfile, '.rpp').substr(9),
@@ -359,7 +356,6 @@ const SquareSymOps: SquareSymOpsType = {
    * @param datestamp The datestamp for this episode.
    */
   FindMusicPath: (data: ShowData, datestamp: string | any[]) => {
-    /*
     let dirs = fs.readdirSync(`./S${data.season}/`, { withFileTypes: true })
       .filter(i => i.isDirectory() && i.name.substr(0, data.season.toString().length) === data.season)
       .map(i => i.name);
@@ -370,7 +366,6 @@ const SquareSymOps: SquareSymOpsType = {
         .map(i => i.name);
       if (subdirs.length > 0) return `./S${data.season}/${dir}/${subdirs[0]}/`;
     }
-    */
 
     return null;
   },
@@ -1312,7 +1307,7 @@ const ModSquareSym: React.FC = (props) => {
   let [waitMode, setWaitMode] = useState(false);
 
   const onReaperInput = ({ currentTarget }: SyntheticEvent<HTMLInputElement, Event>) => {
-    const {files} = currentTarget; if (!files) return;
+    const { files } = currentTarget; if (!files) return;
     const item = files.item(0); if (!item) return;
 
     setWaitMode(true);
