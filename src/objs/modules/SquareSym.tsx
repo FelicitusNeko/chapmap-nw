@@ -1,24 +1,24 @@
-//import fs, { promises as fsPromises } from 'fs';
-import { /*promisify,*/ format } from 'util';
+import { format } from 'util';
 import { basename } from 'path';
 
 import React, { SyntheticEvent, useState } from 'react';
 import id3, { Tags } from 'node-id3';
 import { DateTime, Duration } from 'luxon';
 import { Browser } from 'puppeteer';
-import mp3duration from '@rocka/mp3-duration';
-//import * as mm from "music-metadata";
+import mp3Duration from '@rocka/mp3-duration';
+import * as mm from "music-metadata";
 
 import { ReaperReader } from '../../tools/ReaperReader';
 import { ItemParser } from '../../tools/ItemParser';
 import Orchestrator from '../../tools/Orchestrator';
 
 import { DataType, SegmentType, SOCANType } from './SquareSymTypes/enums';
-import { ShowData, /*ShowChapterData,*/ SegmentChapterData, MusicChapterData, CartChapterData, AlternateData } from './SquareSymTypes/interfaces';
+import { ShowData, ShowChapterData, SegmentChapterData, MusicChapterData, CartChapterData, AlternateData } from './SquareSymTypes/interfaces';
 
 const fs = require('fs');
 const fsPromises = fs.promises;
 
+const testOverride = true;
 
 // HACK: temporary until we come up with better output
 const econsole = console;
@@ -128,7 +128,7 @@ const SquareSymOps: SquareSymOpsType = {
     const copyop = inputfile ? fsPromises.copyFile(`./Work/${inputfile}`, `./Work/${outputfile}.mp3`) : true;
 
     let length: Promise<number> = inputfile
-      ? mp3duration(`./Work/${inputfile}`).then((duration: number) => duration * 1000)
+      ? mp3Duration(`./Work/${inputfile}`).then((duration: number) => duration * 1000)
       //? mm.parseFile(`./Work/${inputfile}`, { duration: true }).then(data => data.format.duration ? data.format.duration * 1000 : 3300000)
       : Promise.resolve(3300000);
 
@@ -190,7 +190,7 @@ const SquareSymOps: SquareSymOpsType = {
   },//)().catch(err => { econsole.error(err); process.exit(1); });
 
   ReaperProcess: async (inputfile: string) => {
-    const reaperData = new ReaperReader(inputfile);
+    const reaperData = ReaperReader.fromFile(inputfile);
     //const showDate = moment(basename(inputfile).substr(0, 8), 'YYYYMMDD');
     const showDate = DateTime.fromFormat(basename(inputfile).substr(0, 8), 'yMMdd');
     let retval: ShowData = {
@@ -224,6 +224,7 @@ const SquareSymOps: SquareSymOpsType = {
 
     musicItems.forEach(i => {
       if (i.name.startsWith('SEG ')) {
+        // Starts with SEG - this is a voice segment
         let newSeg: SegmentChapterData = {
           type: DataType.Segment,
           start: Math.round(i.start * 1000)
@@ -322,8 +323,10 @@ const SquareSymOps: SquareSymOpsType = {
 
         retval.chapters.push(newSeg);
       } else if (i.name.startsWith('SEGLOOP ')) {
+        // Segment continues - segment music has intro and loop parts
         // probably do nothing? maybe revise some numbers
       } else {
+        // Doesn't start with SEG - it's a music segment
         let newTrack: MusicChapterData = {
           type: DataType.Music,
           start: Math.round(i.start * 1000),
@@ -332,6 +335,22 @@ const SquareSymOps: SquareSymOpsType = {
         retval.chapters.push(newTrack);
       }
     });
+
+    retval.chapters.sort((lhs: ShowChapterData, rhs: ShowChapterData) => {
+      if ((lhs.start as number) === (rhs.start as number)) {
+        if (lhs.type === rhs.type) return 0;
+        if (lhs.type === DataType.Carts) return -1;
+        if (rhs.type === DataType.Carts) return 1;
+        return 0;
+      }
+      else if ((lhs.start as number) < (rhs.start as number)) return -1;
+      else return 1;
+    });
+
+    const outfile = `./showdata/SquareSym/${showDate.toFormat('yyyyMMdd')}.json`;
+    if (!fs.existsSync('./showdata') || !fs.existsSync('./showData/SquareSym')) fs.mkdirSync('./showdata/SquareSym', { recursive: true });
+    //if (fs.existsSync(outfile)) fs.unlinkSync(outfile);
+    //fs.writeFileSync(outfile, JSON.stringify(retval, undefined, 2));
   },
 
   /**
@@ -1054,6 +1073,7 @@ const SquareSymOps: SquareSymOpsType = {
 
           // If testing, don't upload
           //if (testMode) break;
+          if (testOverride) break;
 
           // HEY KID, I'M A COMPUTER
           target = upload;
@@ -1247,6 +1267,7 @@ const SquareSymOps: SquareSymOpsType = {
 
           // If testing, don't save
           //if (testMode) break;
+          if (testOverride) break;
 
           // Try to save
           await Promise.all([
@@ -1289,30 +1310,34 @@ const SquareSymOps: SquareSymOpsType = {
 
 const ModSquareSym: React.FC = (props) => {
   let [waitMode, setWaitMode] = useState(false);
-  //econsole.log(require('mp3-duration'));
 
-  const onReaperSelect = ({ currentTarget }: SyntheticEvent<HTMLInputElement, Event>) => {
-    console.log(currentTarget.files);
+  const onReaperInput = ({ currentTarget }: SyntheticEvent<HTMLInputElement, Event>) => {
+    const {files} = currentTarget; if (!files) return;
+    const item = files.item(0); if (!item) return;
+
     setWaitMode(true);
+    item.text().then(text => console.log(text));
+    //SquareSymOps.ReaperProcess(item.name)
   }
 
   const testMusicMetadataMeasure = () => {
-    console.log(fs.statSync('20201023 Forward to the Past.mp3'));
-    return;
-    /*console.log('Start time: ', (new Date()).getTime());
-    mm.parseFile('20201023 Forward to the Past.mp3', { duration: true })
+    console.log('Start time:', Date.now());
+    mp3Duration('testfiles/20201023 Forward to the Past.mp3')
+      .then(length => {
+        console.log('mp3Duration - End time:', Date.now());
+        console.log('mp3Duration - Length:', length);
+      });
+    mm.parseFile('testfiles/20201023 Forward to the Past.mp3', { duration: true })
       .then(data => {
-        console.log('End time: ', (new Date()).getTime());
-        console.log('Duration: ', data.format.duration);
-      })*/
+        console.log('music-metadata - End time:', Date.now());
+        console.log('music-metadata - Length:', data.format.duration);
+      })
   }
-
-  console.log(fs);
 
   return waitMode ? <>Wait</> : <ul>
     <li>
       Step 1: Convert RPP into ChapMap data<br />
-      <input type='file' accept='.rpp' onSelect={onReaperSelect} />
+      <input type='file' accept='.rpp' onInput={onReaperInput} />
     </li>
     <li>Step 2: Fill in the blanks</li>
     <li>Step 3: Tag the episode (and related operations)</li>
