@@ -1,0 +1,20 @@
+{
+  "credits": {
+    "start": "Squarewave Symphony is based on the format of the Electric Leftovers podcast by Jason Parton of LowBiasGaming, lowbiasgaming.net.",
+    "notw": "News of the Weird is written by the editors at Andrews McMeel Syndication, newsoftheweird.com.",
+    "gnm": "Gaming Next Month is powered by Game Informer, gameinformer.com.",
+    "segmusic": "Segment music composed by %s.",
+    "nextOnCKDU": "Stay tuned for %s, coming up next on CKDU, followed by %s at %s and %s at %s.",
+    "end": "Comments? Questions? Want your chiptunes featured on the show? Email me at squaresym@lowbiasgaming.net or get in touch on Twitter, @SquareSym. You can also leave feedback on ckdu.ca; click on Shows, find Squarewave Symphony, and click on Leave Feedback.\n\nThere's also a podcast version of this show! It's available on lowbiasgaming.net/squaresym, or just search for Squarewave Symphony (Squarewave is one word) on Apple Podcasts, Google Play, or TuneIn Radio.\n\nThis has been Squarewave Symphony on CKDU, 88.1 FM Halifax; I'm Kewlio, if you don't know, and I'll see you guys next time."
+  },
+  "longdesc": {
+    "airdate": "<i>Original air date: %s</i>",
+    "noAirdate": "<i>This episode did not air on CKDU.</i>",
+    "start": "Squarewave Symphony is based on the format of the <a href=\"https://www.lowbiasgaming.net/electricleftovers/\">Electric Leftovers</a> podcast by Jason Parton of <a href=\"https://www.lowbiasgaming.net/\">LowBiasGaming</a>.",
+    "notw": "<a href=\"https://uexpress.com/news-of-the-weird/\">News of the Weird</a> is written by the editors at Andrews McMeel Syndication.",
+    "gnm": "Gaming Next Month is powered by <a href=\"https://www.gameinformer.com/%s\">Game Informer</a>.",
+    "end1": "Comments? Questions? Want your chiptunes featured on the show? <a href=\"mailto:squaresym@lowbiasgaming.net\">Email me</a> or get in touch on <a href=\"https://twitter.com/squaresym\">Twitter</a>.",
+    "end2": "Remember that you can get early access to the show by listening live on CKDU 88.1 FM in Halifax, or around the world on <a href=\"https://ckdu.ca/\">ckdu.ca</a>, every Friday at <a href=\"https://www.worldtimeserver.com/current_time_in_CA-NS.aspx?city=Halifax\">5 PM Atlantic Time</a>!%s",
+    "twitch": " The show is also simulcast live on <a href=\"https://twitch.tv/squaresym\" target=\"_blank\">Twitch</a>!"
+  }
+}
