@@ -345,7 +345,7 @@ const SquareSymOps: SquareSymOpsType = {
     });
 
     if (!fs.existsSync('./showdata') || !fs.existsSync('./showData/SquareSym')) fs.mkdirSync('./showdata/SquareSym', { recursive: true });
-    
+
     const outfile = `./showdata/SquareSym/${showDate.toFormat('yyyyMMdd')}.json`;
     if (fs.existsSync(outfile)) fs.unlinkSync(outfile);
     fs.writeFileSync(outfile, JSON.stringify(retval, undefined, 2));
@@ -440,7 +440,6 @@ const SquareSymOps: SquareSymOpsType = {
 
       if (item.end) chap.endTimeMs = item.end as number;
       else if (data.chapters.length > nx + 1) chap.endTimeMs = data.chapters[nx + 1].start as number;
-      //else chap.endTimeMs = length;
       else chap.endTimeMs = -1;
 
       let altData: AlternateData = { type: item.type };
@@ -637,7 +636,6 @@ const SquareSymOps: SquareSymOpsType = {
               break;
           }
           if (!altData.tracker) altData.tracker = { crtc: 12 };
-          //altData.tracker.length = moment.duration(sItem.contentLength, 'seconds');
           altData.tracker.length = Duration.fromISO(sItem.contentLength!);
           break;
 
@@ -803,7 +801,6 @@ const SquareSymOps: SquareSymOpsType = {
     if (data.nextOnCKDU) {
       let nextData = [];
       for (const timeslot in data.nextOnCKDU) nextData.push(data.nextOnCKDU[timeslot], timeslot);
-      //nextData.splice(1, 1);
       retval.push(format(credits.nextOnCKDU, ...(nextData.slice(1))));
     }
 
@@ -819,7 +816,6 @@ const SquareSymOps: SquareSymOpsType = {
    * @returns A promise which resolves into the long description for the episode.
    */
   GenerateLongDescription: async (data: ShowData, { simpleSegList, segMusic, playMusic }: GenerateCompanionOptions): Promise<string> => {
-    //const { longdesc } = require('./res/chapman-const');
     const { longdesc } = chapmanConst;
     let retval: (string | null)[] = [], guests: string[] | null = null;
 
