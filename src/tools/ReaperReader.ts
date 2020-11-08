@@ -15,9 +15,21 @@ export class ReaperReader {
   public root: ReaperNode;
   private flatList: ReaperNode[];
 
-  constructor(inFile: string) {
-    let rppdata: string = readFileSync(inFile)
-      .toString()
+  static fromString(inData: string) {
+    return new ReaperReader(inData);
+  }
+
+  static fromFile(inFile: string) {
+    return new ReaperReader(readFileSync(inFile).toString())
+  }
+
+  static async fromBlob(inBlob: Blob) {
+    const text = await inBlob.text();
+    return new ReaperReader(text);
+  }
+
+  private constructor(inData: string) {
+    let rppdata: string = inData
       .replace(/^\s+/gm, '')
       .replace(/\r/g, '\n')
       .trim();
