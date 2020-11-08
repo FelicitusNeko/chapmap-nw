@@ -43,7 +43,7 @@ const makeOrdinal = (date: string) => {
 }
 
 type TagProcessOptions = {
-  inputfile: string;
+  inputfileObj: File | null;
   makeLog: boolean;
   doUpload: boolean;
   browser?: Browser;
@@ -77,7 +77,7 @@ type SquareSymOpsType = {
   running: boolean;
 
   TagProcess: (data: ShowData, options: TagProcessOptions) => Promise<void>;
-  ReaperProcess: (inputFile: string) => Promise<void>;
+  ReaperProcess: (inputfile: string, reaperData: ReaperReader) => Promise<void>;
 
   FindMusicPath: (data: ShowData, datestamp: string | any[]) => string | null;
   GenerateTags: (data: ShowData, { outputfile, musicPath }: GenerateTagsOptions) => GenerateTagsOutput;
@@ -92,18 +92,18 @@ type SquareSymOpsType = {
 const SquareSymOps: SquareSymOpsType = {
   running: false,
 
-  TagProcess: async (data, { inputfile, makeLog, doUpload, browser }) => {
+  TagProcess: async (data, { inputfileObj, makeLog, doUpload, browser }) => {
     if (SquareSymOps.running) return;
     SquareSymOps.running = true;
 
     const { FindMusicPath, GenerateTags, ComposeStationLog, UploadPodcastEpisode,
       GenerateEndCredits, GenerateLongDescription, GenerateStreamPlaylist } = SquareSymOps;
+    const inputfile = inputfileObj ? inputfileObj.name : null;
 
     if (data.description.length > 255) throw new Error(`Description too long (${data.description.length} chars, max is 255)`);
     if (data.SOCAN) econsole.warn('This is a SOCAN episode. All segments except carts must contain SOCANTime field.')
 
     if (!inputfile) econsole.warn('No input file specified. Will not be tagging episode.');
-    else if (!fs.existsSync(`./Work/${inputfile}`)) throw new Error('Input file does not exist');
 
     let datestamp = DateTime.fromFormat(data.airdate, 'DDD').toFormat('yyyyMMdd');
     //const browser = (makeLog || doUpload) ? await puppet.launch({ headless: headless && !testMode, slowMo: 25, defaultViewport: { width: 1350, height: 800 } }) : null;
@@ -115,13 +115,6 @@ const SquareSymOps: SquareSymOpsType = {
     const logOperation = (makeLog && browser) ? ComposeStationLog(data, browser) : null;
     const uploadOperation = (doUpload && inputfile && browser) ? UploadPodcastEpisode(data, browser) : null;
     if (logOperation || uploadOperation) econsole.info('Starting automated browser operation(s)...');
-
-    if (inputfile) {
-      if (inputfile.localeCompare(outputfile, 'en', { sensitivity: 'accent' }) === 0)
-        throw new Error('Input and output filenames are the same');
-      if (fs.existsSync(`./Work/${outputfile}.mp3`)) fs.unlinkSync(`./Work/${outputfile}.mp3`);
-    }
-    const copyop = inputfile ? fsPromises.copyFile(`./Work/${inputfile}`, `./Work/${outputfile}.mp3`) : true;
 
     let length: Promise<number> = inputfile
       ? mm.parseFile(`./Work/${inputfile}`, { duration: true }).then(data => data.format.duration ? Math.floor(data.format.duration * 1000) : 3300000)
@@ -136,19 +129,22 @@ const SquareSymOps: SquareSymOpsType = {
     sendSignal('tags', { tags, masterList, simpleSegList, segMusic, playMusic });
     //econsole.debug(masterList);
 
-    const tagOperation = inputfile ? (async () => {
+    const tagOperation = inputfileObj ? (async () => {
       econsole.info('Waiting for audio length...');
       tags.length = (await length).toString();
       for (let chap of tags.chapter!) if (chap.endTimeMs < 0) chap.endTimeMs = await length;
       sendSignal('length', tags.length);
 
-      econsole.info('Waiting for copy operation...');
-      await copyop;
-      sendSignal('copy');
+      if (!fs.existsSync('./output') || !fs.existsSync('./output/SquareSym')) fs.mkdirSync('./output/SquareSym', { recursive: true });
+
+      const outputPath = `./output/SquareSym/${outputfile}.mp3`;
+      if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
 
       econsole.info('Writing tags to MP3...');
-      id3.write(tags, `./Work/${outputfile}.mp3`);
-      sendSignal('mp3tag', `./Work/${outputfile}.mp3`);
+      await inputfileObj.arrayBuffer()
+        .then(buffer => id3.Promise.write(tags, Buffer.from(buffer)))
+        .then(buffer => fsPromises.writeFile(outputPath, buffer));
+      sendSignal('mp3tag', outputPath);
     })() : null;
 
     const companionOperation = (async () => {
@@ -179,9 +175,9 @@ const SquareSymOps: SquareSymOpsType = {
     if (CanConRate < CanConTarget) econsole.warn(`WARNING: CanCon rate is under ${CanConTarget}%; consider changing music`);
   },
 
-  ReaperProcess: async (inputfile: string) => {
-    const reaperData = ReaperReader.fromFile(inputfile);
-    const showDate = DateTime.fromFormat(basename(inputfile).substr(0, 8), 'yMMdd');
+  ReaperProcess: async (inputfile: string, reaperData: ReaperReader) => {
+    //const reaperData = ReaperReader.fromFile(inputfile);
+    const showDate = DateTime.fromISO(basename(inputfile).substr(0, 8));
     let retval: ShowData = {
       title: basename(inputfile, '.rpp').substr(9),
       season: 0,
@@ -1289,34 +1285,63 @@ const SquareSymOps: SquareSymOpsType = {
 
 const ModSquareSym: React.FC = (props) => {
   let [waitMode, setWaitMode] = useState(false);
+  let [error, setError] = useState<string | null>(null);
+
+  let [composeLog, setComposeLog] = useState(false);
+  let [uploadPodcast, setUploadPodcast] = useState(false);
 
   const onReaperInput = ({ currentTarget }: SyntheticEvent<HTMLInputElement, Event>) => {
     const { files } = currentTarget; if (!files) return;
     const item = files.item(0); if (!item) return;
 
     setWaitMode(true);
-    item.text().then(text => console.log(text));
+    //item.text().then(text => console.log(text));
     //SquareSymOps.ReaperProcess(item.name)
-  }
-
-  const testMusicMetadataMeasure = () => {
-    console.log('Start time:', Date.now());
-    mm.parseFile('testfiles/20201023 Forward to the Past.mp3', { duration: true })
-      .then(data => {
-        console.log('music-metadata - End time:', Date.now());
-        console.log('music-metadata - Length:', data.format.duration);
+    ReaperReader.fromBlob(item)
+      .then(reaperData => SquareSymOps.ReaperProcess(item.name, reaperData))
+      .then(() => {
+        setError(null);
+        setWaitMode(false);
       })
+      .catch((e: Error) => {
+        setError(e.message);
+        setWaitMode(false);
+      });
+    currentTarget.value = '';
   }
 
-  return waitMode ? <>Wait</> : <ul>
-    <li>
-      Step 1: Convert RPP into ChapMap data<br />
-      <input type='file' accept='.rpp' onInput={onReaperInput} />
-    </li>
-    <li>Step 2: Fill in the blanks</li>
-    <li>Step 3: Tag the episode (and related operations)</li>
-    <li><button onClick={testMusicMetadataMeasure}>Test <code>music-metadata</code></button></li>
-  </ul>;
+  const onPodcastInput = ({ currentTarget }: SyntheticEvent<HTMLInputElement, Event>) => {
+    const { files } = currentTarget; if (!files) return;
+    const item = files.item(0); if (!item) return;
+
+    setWaitMode(true);
+    currentTarget.value = '';
+  }
+
+  const onOptionsChange = ({ currentTarget }: SyntheticEvent<HTMLInputElement, Event>) => {
+    switch (currentTarget.name) {
+      case 'ComposeLog': setComposeLog(currentTarget.checked); break;
+      case 'UploadPodcast': setUploadPodcast(currentTarget.checked); break;
+    }
+  }
+
+  return waitMode ? <>Wait</> : <>
+    {error ? <>Error: {error}<br /></> : ''}
+    Select episode data for steps 2 and 3:
+    <ul>
+      <li>
+        Step 1: Convert RPP into ChapMap data<br />
+        <input type='file' accept='.rpp' onInput={onReaperInput} />
+      </li>
+      <li>Step 2: Fill in the blanks (to be implemented)</li>
+      <li>
+        Step 3: Tag the episode (and related operations)<br />
+        <label><input type='checkbox' name='ComposeLog' checked={composeLog} onChange={onOptionsChange} /> Compose station log</label><br />
+        <label><input type='checkbox' name='UploadPodcast' checked={uploadPodcast} onChange={onOptionsChange} /> Upload to podcast feed</label><br />
+        <input type='file' accept='.mp3' onInput={onPodcastInput} disabled={false} />
+      </li>
+    </ul>
+  </>;
 }
 
 export default ModSquareSym;
