@@ -344,10 +344,11 @@ const SquareSymOps: SquareSymOpsType = {
       else return 1;
     });
 
-    const outfile = `./showdata/SquareSym/${showDate.toFormat('yyyyMMdd')}.json`;
     if (!fs.existsSync('./showdata') || !fs.existsSync('./showData/SquareSym')) fs.mkdirSync('./showdata/SquareSym', { recursive: true });
-    //if (fs.existsSync(outfile)) fs.unlinkSync(outfile);
-    //fs.writeFileSync(outfile, JSON.stringify(retval, undefined, 2));
+    
+    const outfile = `./showdata/SquareSym/${showDate.toFormat('yyyyMMdd')}.json`;
+    if (fs.existsSync(outfile)) fs.unlinkSync(outfile);
+    fs.writeFileSync(outfile, JSON.stringify(retval, undefined, 2));
   },
 
   /**
