@@ -724,6 +724,7 @@ const SquareSymOps: SquareSymOpsType = {
   FetchExternalTags: (sourceFile: string, showDate?: DateTime): AlternateData => {
     if (!fs.existsSync(sourceFile))
       throw new Error(`Source file ${sourceFile} does not exist`);
+
     if (sourceFile.substr(-4).localeCompare('.mp3', 'en', { sensitivity: 'accent' }))
       throw new Error(`Source file ${sourceFile} is not MP3 (only MP3s are currently supported)`);
 
@@ -731,7 +732,6 @@ const SquareSymOps: SquareSymOpsType = {
       if (!sourceTags || !sourceTags.userDefinedText) return null;
       const udt = sourceTags.userDefinedText;
       for (let x in udt) {
-        //console.debug(udt[x].description, targetVal);
         if (!udt[x].description) continue;
         if (!udt[x].description.localeCompare(targetVal, 'en', { sensitivity: 'accent' }))
           return udt[x].value;
@@ -745,14 +745,12 @@ const SquareSymOps: SquareSymOpsType = {
     const hasLyrics = getUserVal(sourceTags, 'CanCon') ?? false;
 
     let newSong = false;
-    //const { TDRL } = sourceTags.raw;
-    //const { releaseDate } = sourceTags;
-    const releaseDate = '2009-03-01'; // HACK: Temporary while I get things situated
+    const { releaseDate } = sourceTags;
     if (releaseDate) try {
-      const trackAge = DateTime.fromFormat(releaseDate, 'y-M-d').diff(showDate ?? DateTime.local());
+      const trackAge = DateTime.fromISO(releaseDate).diff(showDate ?? DateTime.local());
       newSong = trackAge.months < CKDU_NEWTRACK_MAXMONTHS;
     } catch (e) {
-      econsole.warn(`Possible invalid format trying to parse "${releaseDate}" as YYYY-MM-DD string (for ${sourceFile})`);
+      econsole.warn(`Possible invalid format trying to parse "${releaseDate}" as ISO string (for ${sourceFile})`);
     }
 
     return {
