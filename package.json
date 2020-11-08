@@ -1,13 +1,22 @@
 {
   "name": "chapmap2-nw",
   "version": "0.1.0",
+  "description": "wheeeeeee",
+  "author": "KewlioMZX",
+  "build": {
+    "appId": "net.lowbiasgaming.chapmap"
+  },
   "private": true,
   "dependencies": {
+    "@rocka/mp3-duration": "^2.0.0",
     "@types/jest": "^24.0.0",
     "@types/node": "^14.14.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
+    "luxon": "^1.25.0",
+    "node-id3": "^0.2.1",
     "nw-react-scripts": "3.4.1",
+    "puppeteer": "^5.4.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "typescript": "^4.0"
