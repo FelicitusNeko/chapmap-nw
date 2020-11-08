@@ -6,8 +6,7 @@ import React, { SyntheticEvent, useState } from 'react';
 import id3, { Tags } from 'node-id3';
 import { DateTime, Duration } from 'luxon';
 import { Browser } from 'puppeteer';
-import mp3Duration from '@rocka/mp3-duration';
-import * as mm from "music-metadata";
+import mm from 'music-metadata';
 
 import { ReaperReader } from '../../tools/ReaperReader';
 import { ItemParser } from '../../tools/ItemParser';
@@ -106,7 +105,6 @@ const SquareSymOps: SquareSymOpsType = {
     if (!inputfile) econsole.warn('No input file specified. Will not be tagging episode.');
     else if (!fs.existsSync(`./Work/${inputfile}`)) throw new Error('Input file does not exist');
 
-    //let datestamp = moment(data.airdate, 'MMMM Do, YYYY').format('YYYYMMDD');
     let datestamp = DateTime.fromFormat(data.airdate, 'DDD').toFormat('yyyyMMdd');
     //const browser = (makeLog || doUpload) ? await puppet.launch({ headless: headless && !testMode, slowMo: 25, defaultViewport: { width: 1350, height: 800 } }) : null;
     const { sendSignal } = Orchestrator;
@@ -126,8 +124,7 @@ const SquareSymOps: SquareSymOpsType = {
     const copyop = inputfile ? fsPromises.copyFile(`./Work/${inputfile}`, `./Work/${outputfile}.mp3`) : true;
 
     let length: Promise<number> = inputfile
-      ? mp3Duration(`./Work/${inputfile}`).then((duration: number) => duration * 1000)
-      //? mm.parseFile(`./Work/${inputfile}`, { duration: true }).then(data => data.format.duration ? data.format.duration * 1000 : 3300000)
+      ? mm.parseFile(`./Work/${inputfile}`, { duration: true }).then(data => data.format.duration ? Math.floor(data.format.duration * 1000) : 3300000)
       : Promise.resolve(3300000);
 
     econsole.info('Finding music path...');
@@ -167,10 +164,7 @@ const SquareSymOps: SquareSymOpsType = {
       sendSignal('companion', { credits: await credits, longdesc: await longdesc, streamPL: await streamPL });
     })();
 
-    //if (logOperation || uploadOperation) {
-    //econsole.info('Waiting for async operations to finish...');
     await Promise.all([logOperation, uploadOperation, tagOperation, companionOperation]);
-    //}
 
     if (browser) {
       econsole.info('Closing automated browser...');
@@ -183,8 +177,6 @@ const SquareSymOps: SquareSymOpsType = {
     econsole.info(`CanCon rate: ${CanConAmount}/${songsPlayed} (${CanConRate}%)`);
     const CanConTarget = data.SOCAN ? 40 : 12;
     if (CanConRate < CanConTarget) econsole.warn(`WARNING: CanCon rate is under ${CanConTarget}%; consider changing music`);
-
-
   },
 
   ReaperProcess: async (inputfile: string) => {
@@ -1001,7 +993,6 @@ const SquareSymOps: SquareSymOpsType = {
           const [pubDay, pubMonth, pubYear, pubHour, pubMinute] = await page.$$('select.input-sm');
 
           // Provide location of output file
-          //await file.uploadFile((await waitOnSignal('mp3tag')) as string);
           const uploadFile = waitOnSignal('mp3tag')
             .then((location: string) => file && file.uploadFile(location));
 
@@ -1030,10 +1021,9 @@ const SquareSymOps: SquareSymOpsType = {
           // Fill in post date
           let postDate = DateTime.fromFormat(data.airdate, 'DDD', { zone: 'America/Halifax' }).plus({ days: 2, hours: 17 });
           // Allow at least one hour from time of upload start before episode goes live
-          //if (postDate.isBefore(moment().add(1, 'hour'))) postDate = moment().add(1, 'hour');
           if (postDate < DateTime.local().plus({ hours: 1 })) postDate = DateTime.local().plus({ hours: 1 });
-          //postDate.subtract(2, 'hours'); // Atlantic → Central time
           postDate = postDate.setZone('America/Chicago');
+
           await Promise.all([
             pubDay.select(postDate.day.toString()),
             pubMonth.select((postDate.month).toString()),
@@ -1276,7 +1266,6 @@ const SquareSymOps: SquareSymOpsType = {
 
         case url.startsWith('ckdu.ca/admin'):
           econsole.info('Log: Selecting log to fill...');
-          //let airdate = moment(data.airdate, 'MMMM Do, YYYY');
           let airdate = { data };
           target = (await page.$x(`//a[contains(text(), '${airdate}')]`)).shift();
           if (!target) econsole.warn(`Log: No log found for ${airdate}. Was it a special, or have you already filled it?`);
@@ -1314,11 +1303,6 @@ const ModSquareSym: React.FC = (props) => {
 
   const testMusicMetadataMeasure = () => {
     console.log('Start time:', Date.now());
-    mp3Duration('testfiles/20201023 Forward to the Past.mp3')
-      .then(length => {
-        console.log('mp3Duration - End time:', Date.now());
-        console.log('mp3Duration - Length:', length);
-      });
     mm.parseFile('testfiles/20201023 Forward to the Past.mp3', { duration: true })
       .then(data => {
         console.log('music-metadata - End time:', Date.now());
