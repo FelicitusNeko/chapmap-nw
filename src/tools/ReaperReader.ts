@@ -23,15 +23,18 @@ export class ReaperReader {
       .trim();
 
     let tags: (string | ReaperNodeInProcessing)[] = [];
-    let done = true;
-    do {
+    for (let done = false; !done;) {
+      let tagsCopy = tags.slice(0);
       done = true;
+
       rppdata = rppdata.replace(/<[^<]*?>/g, (match: string) => {
         done = false;
-        if (!tags.includes(match)) tags.push(match);
-        return `⭐${tags.indexOf(match)}`;
+        if (!tagsCopy.includes(match)) tagsCopy.push(match);
+        return `⭐${tagsCopy.indexOf(match)}`;
       });
-    } while (!done);
+      
+      tags = tagsCopy;
+    }
 
     this.flatList = [];
 
