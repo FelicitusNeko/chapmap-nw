@@ -1341,8 +1341,8 @@ const ModSquareSym: React.FC = (props) => {
 
   const onOptionsChange = ({ currentTarget }: SyntheticEvent<HTMLInputElement, Event>) => {
     switch (currentTarget.name) {
-      case 'ComposeLog': setMakeLog(currentTarget.checked); break;
-      case 'UploadPodcast': setDoUpload(currentTarget.checked); break;
+      case 'MakeLog': setMakeLog(currentTarget.checked); break;
+      case 'DoUpload': setDoUpload(currentTarget.checked); break;
     }
   }
 
