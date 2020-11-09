@@ -32,6 +32,7 @@ type ImageData = Tags['image'];
 const CKDU_NEWTRACK_MAXMONTHS = 6;
 
 const BASE_OUTPUTPATH = './output/SquareSym/';
+const BASE_DATAPATH = './showdata/SquareSym/';
 
 const makeOrdinal = (date: string) => {
   const dateNum = parseInt(date);
@@ -335,9 +336,9 @@ const SquareSymOps: SquareSymOpsType = {
       else return 1;
     });
 
-    if (!fs.existsSync('./showdata') || !fs.existsSync('./showData/SquareSym')) fs.mkdirSync('./showdata/SquareSym', { recursive: true });
+    if (!fs.existsSync('./showdata') || !fs.existsSync('./showData/SquareSym')) fs.mkdirSync(BASE_DATAPATH, { recursive: true });
 
-    const outfile = `./showdata/SquareSym/${showDate.toFormat('yyyyMMdd')}.json`;
+    const outfile = `${BASE_DATAPATH}${showDate.toFormat('yyyyMMdd')}.json`;
     if (fs.existsSync(outfile)) fs.unlinkSync(outfile);
     fs.writeFileSync(outfile, JSON.stringify(retval, undefined, 2));
   },
@@ -348,15 +349,15 @@ const SquareSymOps: SquareSymOpsType = {
    * @param datestamp The datestamp for this episode.
    */
   FindMusicPath: (data: ShowData, datestamp: string | any[]) => {
-    let dirs = fs.readdirSync(`./S${data.season}/`, { withFileTypes: true })
+    let dirs = fs.readdirSync(`${BASE_DATAPATH}S${data.season}/`, { withFileTypes: true })
       .filter(i => i.isDirectory() && i.name.substr(0, data.season.toString().length) === data.season)
       .map(i => i.name);
 
     for (let dir of dirs) {
-      let subdirs = fs.readdirSync(`./S${data.season}/${dir}/`, { withFileTypes: true })
+      let subdirs = fs.readdirSync(`${BASE_DATAPATH}S${data.season}/${dir}/`, { withFileTypes: true })
         .filter(i => i.isDirectory && i.name.substr(0, datestamp.length) === `${datestamp}` && i.name.includes(data.title))
         .map(i => i.name);
-      if (subdirs.length > 0) return `./S${data.season}/${dir}/${subdirs[0]}/`;
+      if (subdirs.length > 0) return `${BASE_DATAPATH}S${data.season}/${dir}/${subdirs[0]}/`;
     }
 
     return null;
@@ -1356,7 +1357,7 @@ const ModSquareSym: React.FC = (props) => {
       return <>Show data folder not found!</>
     }
 
-    let fileList = fs.readdirSync('./showdata/SquareSym', { withFileTypes: true })
+    let fileList = fs.readdirSync(BASE_DATAPATH, { withFileTypes: true })
       .filter(i => i.isFile())
       .map(i => i.name)
       .filter(i => !extname(i).localeCompare('.json'));
@@ -1370,7 +1371,7 @@ const ModSquareSym: React.FC = (props) => {
 
     fileList.unshift('');
     return <select value={showData ?? ''} onChange={onShowDataChange}>
-      {fileList.map(i => <option value={i}>{basename(i, '.json')}</option>)}
+      {fileList.map(i => <option key={`showdataopt-${i ?? 'empty'}`} value={i}>{basename(i, '.json')}</option>)}
     </select>;
   }
 
