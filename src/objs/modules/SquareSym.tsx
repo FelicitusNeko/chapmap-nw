@@ -1319,7 +1319,7 @@ const ModSquareSym: React.FC = (props) => {
     const inputfileObj = files.item(0); if (!inputfileObj) return;
 
     setWaitMode(true);
-    fsPromises.readFile(`${BASE_OUTPUTPATH}${showData}`)
+    fsPromises.readFile(`${BASE_DATAPATH}${showData}`)
       .then(buffer => SquareSymOps.TagProcess(
         JSON.parse(buffer.toString('utf8')) as ShowData,
         { inputfileObj, makeLog, doUpload }
