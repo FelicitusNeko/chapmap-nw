@@ -924,8 +924,9 @@ const SquareSymOps: SquareSymOpsType = {
       type createImageOptions = { artist: string; image: ImageData; };
       const createImage = ({ artist, image }: createImageOptions) => {
         artist = artist.replace(/\s/g, '-');
-        if (!fs.existsSync(`./Mus/${data.season}/`)) fs.mkdirSync(`./Mus/${data.season}`);
-        if (!fs.existsSync(`./Mus/${data.season}/${data.episode}/`)) fs.mkdirSync(`./Mus/${data.season}/${data.episode}`);
+        if (!fs.existsSync(`${BASE_DATAPATH}Mus/${data.season}/`) ||
+          !fs.existsSync(`${BASE_DATAPATH}Mus/${data.season}/${data.episode}/`))
+          fs.mkdirSync(`${BASE_DATAPATH}Mus/${data.season}/${data.episode}`, { recursive: true });
         // TODO: extract image, resize to 100x100, save to overlay resource dir
         return `./Mus/${data.season}/${data.episode}/${artist}-100.png`;
       };
