@@ -31,6 +31,8 @@ type ImageData = Tags['image'];
 
 const CKDU_NEWTRACK_MAXMONTHS = 6;
 
+const BASE_OUTPUTPATH = './output/SquareSym/';
+
 const makeOrdinal = (date: string) => {
   const dateNum = parseInt(date);
   if (Math.floor(dateNum / 10) % 10 === 1) return `${dateNum}th,`;
@@ -99,6 +101,7 @@ const SquareSymOps: SquareSymOpsType = {
     const { FindMusicPath, GenerateTags, ComposeStationLog, UploadPodcastEpisode,
       GenerateEndCredits, GenerateLongDescription, GenerateStreamPlaylist } = SquareSymOps;
     const inputfile = inputfileObj ? inputfileObj.name : null;
+    const inputfileBuffer = inputfileObj ? inputfileObj.arrayBuffer().then(buffer => Buffer.from(buffer)) : null;
 
     if (data.description.length > 255) throw new Error(`Description too long (${data.description.length} chars, max is 255)`);
     if (data.SOCAN) econsole.warn('This is a SOCAN episode. All segments except carts must contain SOCANTime field.')
@@ -116,8 +119,9 @@ const SquareSymOps: SquareSymOpsType = {
     const uploadOperation = (doUpload && inputfile && browser) ? UploadPodcastEpisode(data, browser) : null;
     if (logOperation || uploadOperation) econsole.info('Starting automated browser operation(s)...');
 
-    let length: Promise<number> = inputfile
-      ? mm.parseFile(`./Work/${inputfile}`, { duration: true }).then(data => data.format.duration ? Math.floor(data.format.duration * 1000) : 3300000)
+    let length: Promise<number> = inputfileBuffer
+      ? mm.parseBuffer(await inputfileBuffer, 'audio/mpeg', { duration: true })
+        .then(data => data.format.duration ? Math.floor(data.format.duration * 1000) : 3300000)
       : Promise.resolve(3300000);
 
     econsole.info('Finding music path...');
@@ -129,20 +133,19 @@ const SquareSymOps: SquareSymOpsType = {
     sendSignal('tags', { tags, masterList, simpleSegList, segMusic, playMusic });
     //econsole.debug(masterList);
 
-    const tagOperation = inputfileObj ? (async () => {
+    const tagOperation = inputfileBuffer ? (async () => {
       econsole.info('Waiting for audio length...');
       tags.length = (await length).toString();
       for (let chap of tags.chapter!) if (chap.endTimeMs < 0) chap.endTimeMs = await length;
       sendSignal('length', tags.length);
 
-      if (!fs.existsSync('./output') || !fs.existsSync('./output/SquareSym')) fs.mkdirSync('./output/SquareSym', { recursive: true });
+      if (!fs.existsSync('./output') || !fs.existsSync('./output/SquareSym')) fs.mkdirSync(BASE_OUTPUTPATH, { recursive: true });
 
-      const outputPath = `./output/SquareSym/${outputfile}.mp3`;
+      const outputPath = `${BASE_OUTPUTPATH}${outputfile}.mp3`;
       if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
 
       econsole.info('Writing tags to MP3...');
-      await inputfileObj.arrayBuffer()
-        .then(buffer => id3.Promise.write(tags, Buffer.from(buffer)))
+      await id3.Promise.write(tags, await inputfileBuffer)
         .then(buffer => fsPromises.writeFile(outputPath, buffer));
       sendSignal('mp3tag', outputPath);
     })() : null;
@@ -154,9 +157,9 @@ const SquareSymOps: SquareSymOpsType = {
       let streamPL: Promise<string> = GenerateStreamPlaylist(data, masterList);
 
       econsole.info('Writing companion data...');
-      fs.writeFileSync(`./Work/${outputfile}.credits.txt`, await credits);
-      fs.writeFileSync(`./Work/${outputfile}.longdesc.txt`, await longdesc);
-      fs.writeFileSync('./Work/playlist.txt', await streamPL);
+      fs.writeFileSync(`${BASE_OUTPUTPATH}${outputfile}.credits.txt`, await credits);
+      fs.writeFileSync(`${BASE_OUTPUTPATH}${outputfile}.longdesc.txt`, await longdesc);
+      fs.writeFileSync(`${BASE_OUTPUTPATH}playlist.txt`, await streamPL);
       sendSignal('companion', { credits: await credits, longdesc: await longdesc, streamPL: await streamPL });
     })();
 
@@ -1315,8 +1318,23 @@ const ModSquareSym: React.FC = (props) => {
     const inputfileObj = files.item(0); if (!inputfileObj) return;
 
     setWaitMode(true);
-    fsPromises.readFile(`./showdata/SquareSym/${showData}`)
-      .then(buffer => SquareSymOps.TagProcess(JSON.parse(buffer.toString('utf8')) as ShowData, { inputfileObj, makeLog, doUpload }))
+    fsPromises.readFile(`${BASE_OUTPUTPATH}${showData}`)
+      .then(buffer => SquareSymOps.TagProcess(
+        JSON.parse(buffer.toString('utf8')) as ShowData,
+        { inputfileObj, makeLog, doUpload }
+      ))
+      .then(() => {
+        setError(null);
+        setWaitMode(false);
+        Orchestrator.clearAllSignals();
+      })
+      .catch((e: Error) => {
+        setError(e.message);
+        setWaitMode(false);
+        Orchestrator.clearAllSignals();
+        SquareSymOps.running = false;
+      });
+
     currentTarget.value = '';
   }
 
