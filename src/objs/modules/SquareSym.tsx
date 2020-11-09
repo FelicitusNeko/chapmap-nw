@@ -1,6 +1,6 @@
 import fs, { promises as fsPromises } from 'fs';
 import { format } from 'util';
-import { basename } from 'path';
+import { basename, extname } from 'path';
 
 import React, { SyntheticEvent, useState } from 'react';
 import id3, { Tags } from 'node-id3';
@@ -1287,16 +1287,16 @@ const ModSquareSym: React.FC = (props) => {
   let [waitMode, setWaitMode] = useState(false);
   let [error, setError] = useState<string | null>(null);
 
-  let [composeLog, setComposeLog] = useState(false);
-  let [uploadPodcast, setUploadPodcast] = useState(false);
+  let [showData, setShowData] = useState<string | null>(null);
+
+  let [makeLog, setMakeLog] = useState(false);
+  let [doUpload, setDoUpload] = useState(false);
 
   const onReaperInput = ({ currentTarget }: SyntheticEvent<HTMLInputElement, Event>) => {
     const { files } = currentTarget; if (!files) return;
     const item = files.item(0); if (!item) return;
 
     setWaitMode(true);
-    //item.text().then(text => console.log(text));
-    //SquareSymOps.ReaperProcess(item.name)
     ReaperReader.fromBlob(item)
       .then(reaperData => SquareSymOps.ReaperProcess(item.name, reaperData))
       .then(() => {
@@ -1312,22 +1312,53 @@ const ModSquareSym: React.FC = (props) => {
 
   const onPodcastInput = ({ currentTarget }: SyntheticEvent<HTMLInputElement, Event>) => {
     const { files } = currentTarget; if (!files) return;
-    const item = files.item(0); if (!item) return;
+    const inputfileObj = files.item(0); if (!inputfileObj) return;
 
     setWaitMode(true);
+    fsPromises.readFile(`./showdata/SquareSym/${showData}`)
+      .then(buffer => SquareSymOps.TagProcess(JSON.parse(buffer.toString('utf8')) as ShowData, { inputfileObj, makeLog, doUpload }))
     currentTarget.value = '';
   }
 
   const onOptionsChange = ({ currentTarget }: SyntheticEvent<HTMLInputElement, Event>) => {
     switch (currentTarget.name) {
-      case 'ComposeLog': setComposeLog(currentTarget.checked); break;
-      case 'UploadPodcast': setUploadPodcast(currentTarget.checked); break;
+      case 'ComposeLog': setMakeLog(currentTarget.checked); break;
+      case 'UploadPodcast': setDoUpload(currentTarget.checked); break;
     }
+  }
+
+  const onShowDataChange = ({ currentTarget }: SyntheticEvent<HTMLSelectElement, Event>) => {
+    console.log('onShowDataChange', currentTarget.value);
+    setShowData(currentTarget.value);
+  }
+
+  const readShowDataDir = () => {
+    if (!fs.existsSync('./showdata') || !fs.existsSync('./showdata/SquareSym')) {
+      if (showData) setShowData(null);
+      return <>Show data folder not found!</>
+    }
+
+    let fileList = fs.readdirSync('./showdata/SquareSym', { withFileTypes: true })
+      .filter(i => i.isFile())
+      .map(i => i.name)
+      .filter(i => !extname(i).localeCompare('.json'));
+
+    if (fileList.length === 0) {
+      if (showData) setShowData(null);
+      return <>No show data available!</>
+    }
+
+    if (showData && !fileList.includes(showData)) setShowData(null);
+
+    fileList.unshift('');
+    return <select value={showData ?? ''} onChange={onShowDataChange}>
+      {fileList.map(i => <option value={i}>{basename(i, '.json')}</option>)}
+    </select>;
   }
 
   return waitMode ? <>Wait</> : <>
     {error ? <>Error: {error}<br /></> : ''}
-    Select episode data for steps 2 and 3:
+    Select episode data for steps 2 and 3: {readShowDataDir()}<br />
     <ul>
       <li>
         Step 1: Convert RPP into ChapMap data<br />
@@ -1336,9 +1367,9 @@ const ModSquareSym: React.FC = (props) => {
       <li>Step 2: Fill in the blanks (to be implemented)</li>
       <li>
         Step 3: Tag the episode (and related operations)<br />
-        <label><input type='checkbox' name='ComposeLog' checked={composeLog} onChange={onOptionsChange} /> Compose station log</label><br />
-        <label><input type='checkbox' name='UploadPodcast' checked={uploadPodcast} onChange={onOptionsChange} /> Upload to podcast feed</label><br />
-        <input type='file' accept='.mp3' onInput={onPodcastInput} disabled={false} />
+        <label><input type='checkbox' name='MakeLog' checked={makeLog} onChange={onOptionsChange} /> Compose station log</label><br />
+        <label><input type='checkbox' name='DoUpload' checked={doUpload} onChange={onOptionsChange} /> Upload to podcast feed</label><br />
+        <input type='file' accept='.mp3' onInput={onPodcastInput} disabled={!showData} /> or <button disabled={!showData}>Only generate companion data</button>
       </li>
     </ul>
   </>;
