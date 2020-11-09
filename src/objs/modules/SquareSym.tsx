@@ -6,7 +6,7 @@ import React, { SyntheticEvent, useState } from 'react';
 import id3, { Tags } from 'node-id3';
 import { DateTime, Duration } from 'luxon';
 import { Browser } from 'puppeteer';
-import mm from 'music-metadata';
+import * as mm from 'music-metadata';
 
 import { ReaperReader } from '../../tools/ReaperReader';
 import { ItemParser } from '../../tools/ItemParser';
@@ -21,13 +21,6 @@ const testOverride = true;
 const econsole = console;
 
 const chapmanConst = require('./SquareSymTypes/companion.json');
-type ChapterData = {
-  elementID: string;
-  startTimeMs: number;
-  endTimeMs: number;
-  tags: Tags;
-}
-type ImageData = Tags['image'];
 
 const CKDU_NEWTRACK_MAXMONTHS = 6;
 
@@ -44,6 +37,14 @@ const makeOrdinal = (date: string) => {
     default: return `${dateNum}th,`
   }
 }
+
+type ChapterData = {
+  elementID: string;
+  startTimeMs: number;
+  endTimeMs: number;
+  tags: Tags;
+}
+type ImageData = Tags['image'];
 
 type TagProcessOptions = {
   inputfileObj: File | null;
@@ -1308,6 +1309,7 @@ const ModSquareSym: React.FC = (props) => {
         setWaitMode(false);
       })
       .catch((e: Error) => {
+        console.error(e);
         setError(e.message);
         setWaitMode(false);
       });
@@ -1330,6 +1332,7 @@ const ModSquareSym: React.FC = (props) => {
         Orchestrator.clearAllSignals();
       })
       .catch((e: Error) => {
+        console.error(e);
         setError(e.message);
         setWaitMode(false);
         Orchestrator.clearAllSignals();
