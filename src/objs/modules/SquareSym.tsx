@@ -15,7 +15,7 @@ import Orchestrator from '../../tools/Orchestrator';
 import { DataType, SegmentType, SOCANType } from './SquareSymTypes/enums';
 import { ShowData, ShowChapterData, SegmentChapterData, MusicChapterData, CartChapterData, AlternateData } from './SquareSymTypes/interfaces';
 
-const testOverride = true;
+const testOverride = false;
 
 // HACK: temporary until we come up with better output
 const econsole = console;
