@@ -5,7 +5,7 @@ import { basename, extname } from 'path';
 import React, { SyntheticEvent, useState } from 'react';
 import id3, { Tags } from 'node-id3';
 import { DateTime, Duration } from 'luxon';
-import { Browser } from 'puppeteer';
+import Puppet, { Browser } from 'puppeteer';
 import * as mm from 'music-metadata';
 
 import { ReaperReader } from '../../tools/ReaperReader';
@@ -50,7 +50,7 @@ type TagProcessOptions = {
   inputfileObj: File | null;
   makeLog: boolean;
   doUpload: boolean;
-  browser?: Browser;
+  browser?: Promise<Browser>;
 }
 type GenerateTagsOptions = {
   /** The location of the output file. */
@@ -111,14 +111,14 @@ const SquareSymOps: SquareSymOpsType = {
     if (!inputfile) econsole.warn('No input file specified. Will not be tagging episode.');
 
     let datestamp = DateTime.fromFormat(data.airdate, 'DDD').toFormat('yyyyMMdd');
-    //const browser = (makeLog || doUpload) ? await puppet.launch({ headless: headless && !testMode, slowMo: 25, defaultViewport: { width: 1350, height: 800 } }) : null;
+
     const { sendSignal } = Orchestrator;
     const outputfile: string =
       (data.season === 'SP' ? `SP` : `S${data.season.toString().padStart(2, '0')}E`) +
       `${data.episode.toString().padStart(2, '0')} ${data.title}`;
 
-    const logOperation = (makeLog && browser) ? ComposeStationLog(data, browser) : null;
-    const uploadOperation = (doUpload && inputfile && browser) ? UploadPodcastEpisode(data, browser) : null;
+    const logOperation = (makeLog && browser) ? ComposeStationLog(data, await browser) : null;
+    const uploadOperation = (doUpload && inputfile && browser) ? UploadPodcastEpisode(data, await browser) : null;
     if (logOperation || uploadOperation) econsole.info('Starting automated browser operation(s)...');
 
     let length: Promise<number> = inputfileBuffer
@@ -169,7 +169,7 @@ const SquareSymOps: SquareSymOpsType = {
 
     if (browser) {
       econsole.info('Closing automated browser...');
-      await browser.close();
+      await (await browser).close();
     }
 
     econsole.info('Done.');
@@ -1037,7 +1037,7 @@ const SquareSymOps: SquareSymOpsType = {
           // Fill in long description
           if (longDescSrcBtn) {
             await longDescSrcBtn.click();
-            await page.waitFor(1000);
+            await page.waitForTimeout(1000);
             const [longDescBox, longDescOk] = await Promise.all([
               page.$('div[aria-label="Source code"] textarea'),
               page.$('div[aria-label="Source code"] div.mce-foot button')
@@ -1047,7 +1047,7 @@ const SquareSymOps: SquareSymOpsType = {
               (await waitOnSignal('companion')).longdesc as string
             );
             if (longDescOk) longDescOk.click();
-            await page.waitFor(1000);
+            await page.waitForTimeout(1000);
           }
 
           await uploadFile;
@@ -1152,7 +1152,7 @@ const SquareSymOps: SquareSymOpsType = {
             switch (item.type) {
               case DataType.Segment:
                 await music.click();
-                await page.waitFor(500);
+                await page.waitForTimeout(500);
                 await spoken.click();
                 break;
               case DataType.Music:
@@ -1165,7 +1165,7 @@ const SquareSymOps: SquareSymOpsType = {
                 econsole.warn(`Log: Unknown segment type '${item.type}'`);
                 break;
             }
-            await page.waitFor(500);
+            await page.waitForTimeout(500);
           }
 
           econsole.info('Log: Writing show log...');
@@ -1256,7 +1256,7 @@ const SquareSymOps: SquareSymOpsType = {
           // Try to save
           await Promise.all([
             save && save.click(),
-            page.waitFor(1000)
+            page.waitForTimeout(1000)
           ]);
 
           // If there's a dialog, it didn't save; take a shot of the error
@@ -1268,7 +1268,7 @@ const SquareSymOps: SquareSymOpsType = {
 
         case url.startsWith('ckdu.ca/admin'):
           econsole.info('Log: Selecting log to fill...');
-          let airdate = { data };
+          let { airdate } = data;
           target = (await page.$x(`//a[contains(text(), '${airdate}')]`)).shift();
           if (!target) econsole.warn(`Log: No log found for ${airdate}. Was it a special, or have you already filled it?`);
           break;
@@ -1324,10 +1324,19 @@ const ModSquareSym: React.FC = (props) => {
     const inputfileObj = files.item(0); if (!inputfileObj) return;
 
     setWaitMode(true);
+
+    const browser = (makeLog || doUpload)
+      //? Puppet.launch({ headless: !testOverride, slowMo: 25, defaultViewport: { width: 1350, height: 800 } })
+      ? Puppet.launch({
+        executablePath: 'C:/Users/Kewlio/Documents/Node Projects/chapmap2-nw/node_modules/puppeteer/.local-chromium/win64-809590/chrome-win/chrome.exe',
+        headless: !testOverride, slowMo: 25, defaultViewport: { width: 1350, height: 800 }
+      })
+      : undefined;
+
     fsPromises.readFile(`${BASE_DATAPATH}${showData}`)
       .then(buffer => SquareSymOps.TagProcess(
         JSON.parse(buffer.toString('utf8')) as ShowData,
-        { inputfileObj, makeLog, doUpload }
+        { inputfileObj, makeLog, doUpload, browser }
       ))
       .then(() => {
         setError(null);
