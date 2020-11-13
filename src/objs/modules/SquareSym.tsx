@@ -458,7 +458,7 @@ const SquareSymOps: SquareSymOpsType = {
             case SegmentType.Intro:
               chap.tags.title = 'Intro & What\'s New at LowBiasGaming';
               url = 'https://lowbiasgaming.net/';
-              altData = Object.assign(altData, {
+              altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
                 artist: 'KewlioMZX',
                 songTitle: 'Heat Wave',
                 songImage: `${BASE_DATAPATH}Seg/sqsy.png`,
@@ -472,7 +472,7 @@ const SquareSymOps: SquareSymOpsType = {
               chap.tags.image = `${BASE_DATAPATH}Seg/Archives.png`;
               if (sItem.gameId) url = `https://lowbiasgaming.net/playlist.php?gameid=${sItem.gameId}`;
 
-              altData = Object.assign(altData, {
+              altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
                 displayTitle: `From the Archives~~${sItem.game}`,
                 artist: 'Manabu Namiki, Noriyuki Kamikura',
                 songTitle: 'Gentle Breeze',
@@ -489,7 +489,7 @@ const SquareSymOps: SquareSymOpsType = {
               if (sItem.weather) chap.tags.title += ' & Halifax Weather';
               if (sItem.newsDate) url = `https://uexpress.com/news-of-the-weird/${sItem.newsDate}`;
 
-              altData = Object.assign(altData, {
+              altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
                 displayTitle: chap.tags.title,
                 artist: 'twilight/defekt',
                 songTitle: 'feel the vibes',
@@ -503,7 +503,7 @@ const SquareSymOps: SquareSymOpsType = {
               chap.tags.title = `Review: ${item.title}`;
               chap.tags.image = `${BASE_DATAPATH}Seg/review.png`;
 
-              altData = Object.assign(altData, {
+              altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
                 displayTitle: `Review~~${item.displayTitle ?? item.title}`,
                 artist: 'Nifflas',
                 songTitle: 'An Underwater Adventure (Mix B)'
@@ -514,7 +514,7 @@ const SquareSymOps: SquareSymOpsType = {
               chap.tags.title = `I Found a Thing: ${item.title}`;
               chap.tags.image = `${BASE_DATAPATH}Seg/foundthing.png`;
 
-              altData = Object.assign(altData, {
+              altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
                 displayTitle: `I Found a Thing~~${item.displayTitle ?? item.title}`,
                 artist: 'Pink Projects',
                 songTitle: 'alloy_run'
@@ -526,7 +526,7 @@ const SquareSymOps: SquareSymOpsType = {
               chap.tags.image = `${BASE_DATAPATH}Seg/gnm.png`;
               url = `https://gameinformer.com/${item.title!.replace(/[^\d]/g, '')}`;
 
-              altData = Object.assign(altData, {
+              altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
                 displayTitle: `Gaming Next Month~~${item.title}`,
                 artist: 'Shawn Daley',
                 songTitle: 'Level 66',
@@ -540,10 +540,11 @@ const SquareSymOps: SquareSymOpsType = {
               chap.tags.title = `Rapid Review Rampage: ${item.title}`;
               chap.tags.image = `${BASE_DATAPATH}Seg/review.png`;
 
-              altData = Object.assign(altData, {
+              altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
                 displayTitle: `Rapid Review Rampage~~${item.displayTitle ?? item.title}`,
                 artist: 'zandax',
-                songTitle: 'central park'
+                songTitle: 'central park',
+                songUrl: 'https://modarchive.org/index.php?request=view_profile&query=68935'
               });
               break;
 
@@ -551,7 +552,7 @@ const SquareSymOps: SquareSymOpsType = {
               chap.tags.title = `Introspective: ${item.title}`;
               chap.tags.image = `${BASE_DATAPATH}Seg/introspective.png`;
 
-              altData = Object.assign(altData, {
+              altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
                 displayTitle: `Introspective~~${item.displayTitle ?? item.title}`,
                 artist: 'Gigandect',
                 songTitle: 'Dolphins are alright',
@@ -564,7 +565,7 @@ const SquareSymOps: SquareSymOpsType = {
               chap.tags.title = `Interview: ${item.title}`;
               //chap.tags.image = `${BASE_DATAPATH}Seg/interview.png`;
 
-              altData = Object.assign(altData, {
+              altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
                 displayTitle: `Interview~~${item.displayTitle ?? item.title}`,
                 artist: 'whalebone',
                 songTitle: 'double trouble'
@@ -574,7 +575,7 @@ const SquareSymOps: SquareSymOpsType = {
             case SegmentType.VGin10Minutes:
               chap.tags.title = `Video Games in 10 Minutes or Less: ${sItem.game}`;
 
-              altData = Object.assign(altData, {
+              altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
                 displayTitle: `VG in 10 Minutes or Less~~${item.displayTitle ?? sItem.game}`,
                 artist: 'Reverb',
                 songTitle: 'altar_of_light'
@@ -584,11 +585,12 @@ const SquareSymOps: SquareSymOpsType = {
             case SegmentType.VGHistory:
               chap.tags.title = `Video Game History: ${item.title}`;
 
-              altData = Object.assign(altData, {
+              altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
                 displayTitle: item.displayTitle ?? `Video Game History~~${item.title}`,
                 artist: 'CHIBINOIZE',
                 songTitle: 'Neon Lights',
-                songImage: `${BASE_DATAPATH}Mus/Seg/is-dolphins.jpg`
+                songImage: `${BASE_DATAPATH}Mus/Seg/is-dolphins.jpg`,
+                songUrl: 'https://soundcloud.com/chibinoize/'
               });
               break;
 
@@ -596,7 +598,7 @@ const SquareSymOps: SquareSymOpsType = {
               chap.tags.title = `The Dialog Box w/ ${sItem.guest}`;
               chap.tags.image = `${BASE_DATAPATH}Seg/dialogbox.png`;
 
-              altData = Object.assign(altData, {
+              altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
                 displayTitle: `The Dialog Box~~w/ ${sItem.guest}`,
                 artist: 'Jarkko Virtanen',
                 songTitle: 'alva usa kicknose'
@@ -606,10 +608,11 @@ const SquareSymOps: SquareSymOpsType = {
             case SegmentType.Miscellaneous:
               chap.tags.title = `Miscellaneous: ${item.title}`;
 
-              altData = Object.assign(altData, {
+              altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
                 displayTitle: `Miscellaneous~~${item.title}`,
                 artist: 'Yerzmyey',
-                songTitle: 'Cybernetic Celtic Wizard'
+                songTitle: 'Cybernetic Celtic Wizard',
+                songUrl: 'https://soundcloud.com/yerzmyey/'
               });
               break;
 
@@ -617,7 +620,7 @@ const SquareSymOps: SquareSymOpsType = {
               chap.tags.title = 'Lead-out';
               url = 'https://lowbiasgaming.net/squaresym';
 
-              altData = Object.assign(altData, {
+              altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
                 displayTitle: `Lead-out`,
                 artist: 'Kommisar',
                 songTitle: 'Cherry Cola',
@@ -629,7 +632,7 @@ const SquareSymOps: SquareSymOpsType = {
 
             default:
               chap.tags.title = item.title ?? `Undefined segment ${sItem.segType}`;
-              altData = Object.assign(altData, {
+              altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
                 artist: sItem.artist,
                 songTitle: sItem.songTitle,
                 album: sItem.album,
@@ -644,20 +647,20 @@ const SquareSymOps: SquareSymOpsType = {
         case DataType.Music:
           let mItem = item as MusicChapterData;
           if (mItem.from && !musicPath) throw new Error(`Can't use tag source ${mItem.from}; No music path found for episode`);
-          altData = Object.assign(altData, mItem.from ? FetchExternalTags(`${musicPath}${mItem.from}`) : {
+          altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, mItem.from ? FetchExternalTags(`${musicPath}${mItem.from}`) : {
             artist: mItem.artist,
             songTitle: mItem.title,
             album: mItem.album,
             CanCon: mItem.CanCon,
             image: chap.tags.image,
-            tracker: { crtc: item.crtc ?? 21 }
+            tracker: { crtc: mItem.crtc ?? 21 }
           });
           if (altData.artist) altData.artist = altData.artist.replace(/﻿/g, ', ');
           altData.archives = mItem.archives;
-          if (!altData.tracker) altData.tracker = { crtc: item.crtc ?? 21 };
+          if (!altData.tracker) altData.tracker = { crtc: mItem.crtc ?? 21 };
           if (mItem.hasLyrics) altData.tracker.hasLyrics = mItem.hasLyrics;
           if (mItem.newSong) altData.tracker.newSong = mItem.newSong;
-          if (item.displaySong) altData.displaySong = item.displaySong;
+          if (mItem.displaySong) altData.displaySong = mItem.displaySong;
 
           chap.tags.title = `${altData.artist} - ${altData.songTitle}`;
           if (altData.album) chap.tags.title += ` [${altData.album}]`;
@@ -675,13 +678,13 @@ const SquareSymOps: SquareSymOpsType = {
         case DataType.Carts:
           let cItem = item as CartChapterData;
           cartCount++;
-          altData = Object.assign(altData, {
-            title: item.title ?? 'Carts',
+          altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
+            title: cItem.title ?? 'Carts',
             displayTitle: 'Station Break',
             image: `${BASE_DATAPATH}Seg/carts.png`,
             displaySong: 'Station Break',
             songImage: `${BASE_DATAPATH}Seg/carts.png`,
-            tracker: { crtc: item.crtc ?? 51, timePlayed: cItem.estTime ?? '5:00 pm' }
+            tracker: { crtc: cItem.crtc ?? 51, timePlayed: cItem.estTime ?? '5:00 pm' }
           });
           break;
 
@@ -710,7 +713,7 @@ const SquareSymOps: SquareSymOpsType = {
           if (item.image) chap.tags.image = item.image;
           if (item.url) url = item.url;
 
-          if (url) chap.tags.userDefinedUrl = [{ description: '**chapter url', url }];
+          if (url) chap.tags.userDefinedUrl = [{ description: 'chapter url', url }];
           tags.chapter!.push(chap);
 
           altData.title = chap.tags.title;
