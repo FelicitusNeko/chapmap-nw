@@ -20,7 +20,7 @@ const testOverride = true;
 // HACK: temporary until we come up with better output
 const econsole = console;
 
-const chapmanConst = require('./SquareSymTypes/companion.json');
+const sqsyCompanion = require('./SquareSymTypes/companion.json');
 
 const CKDU_NEWTRACK_MAXMONTHS = 6;
 
@@ -788,7 +788,7 @@ const SquareSymOps: SquareSymOpsType = {
    * @returns A promise which resolves into a string containing the end credits spiel.
    */
   GenerateEndCredits: async (data: ShowData, { simpleSegList, segMusic }: GenerateCompanionOptions): Promise<string> => {
-    const { credits } = chapmanConst;
+    const { credits } = sqsyCompanion;
     let retval = [];
 
     if (!data.nonstandardEpisode) retval.push(credits.start);
@@ -816,10 +816,10 @@ const SquareSymOps: SquareSymOpsType = {
    * @returns A promise which resolves into the long description for the episode.
    */
   GenerateLongDescription: async (data: ShowData, { simpleSegList, segMusic, playMusic }: GenerateCompanionOptions): Promise<string> => {
-    const { longdesc } = chapmanConst;
+    const { longdesc } = sqsyCompanion;
     let retval: (string | null)[] = [], guests: string[] | null = null;
 
-    if (data.airdate) retval.push(format(longdesc.airdate.replace(/\d+,/, makeOrdinal), data.airdate));
+    if (data.airdate) retval.push(format(longdesc.airdate, data.airdate.replace(/\d+,/, makeOrdinal)));
     retval.push(data.description);
 
     if (data.guest) {
@@ -1333,7 +1333,6 @@ const ModSquareSym: React.FC = (props) => {
     setWaitMode(true);
 
     const browser = (makeLog || doUpload)
-      //? Puppet.launch({ headless: !testOverride, slowMo: 25, defaultViewport: { width: 1350, height: 800 } })
       ? Puppet.launch({
         executablePath: 'C:/Users/Kewlio/Documents/Node Projects/chapmap2-nw/node_modules/puppeteer/.local-chromium/win64-809590/chrome-win/chrome.exe',
         headless: !testOverride, slowMo: 25, defaultViewport: { width: 1350, height: 800 }
