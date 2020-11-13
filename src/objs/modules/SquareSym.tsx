@@ -97,7 +97,10 @@ const SquareSymOps: SquareSymOpsType = {
   running: false,
 
   TagProcess: async (data, { inputfileObj, makeLog, doUpload, browser }) => {
-    if (SquareSymOps.running) return;
+    if (SquareSymOps.running) {
+      econsole.error('SquareSym process already running.');
+      return;
+    }
     SquareSymOps.running = true;
 
     const { FindMusicPath, GenerateTags, ComposeStationLog, UploadPodcastEpisode,
@@ -178,6 +181,8 @@ const SquareSymOps: SquareSymOpsType = {
     econsole.info(`CanCon rate: ${CanConAmount}/${songsPlayed} (${CanConRate}%)`);
     const CanConTarget = data.SOCAN ? 40 : 12;
     if (CanConRate < CanConTarget) econsole.warn(`WARNING: CanCon rate is under ${CanConTarget}%; consider changing music`);
+
+    SquareSymOps.running = false;
   },
 
   ReaperProcess: async (inputfile: string, reaperData: ReaperReader) => {
@@ -188,7 +193,7 @@ const SquareSymOps: SquareSymOpsType = {
       season: 0,
       episode: 0,
       year: (new Date()).getFullYear(),
-      airdate: showDate.toFormat('DDD'),
+      airdate: showDate.toFormat('MMMM dd, yyyy'),
       description: '',
       chapters: [],
       nextOnCKDU: {}
@@ -223,7 +228,7 @@ const SquareSymOps: SquareSymOpsType = {
         switch (true) {
           case i.name.startsWith('SEG 00'):
             newSeg.segType = SegmentType.GoCall;
-            newSeg.contentLength = Duration.fromObject({ seconds: Math.round(i.length) }).toISO();
+            newSeg.contentLength = Duration.fromObject({ minutes: 0, seconds: Math.round(i.length) }).normalize().toISO();
             break;
           case i.name.startsWith('SEG 01'):
             newSeg.segType = SegmentType.Intro;
@@ -294,6 +299,7 @@ const SquareSymOps: SquareSymOpsType = {
             break;
           case i.name.startsWith('SEG 16'):
             newSeg.segType = SegmentType.Miscellaneous;
+            newSeg.title = '';
             break;
           case i.name.startsWith('SEG 98'):
             // This is actually to be listed as a cart
@@ -304,12 +310,13 @@ const SquareSymOps: SquareSymOpsType = {
         }
 
         if (!newSeg.contentLength) newSeg.contentLength = Duration.fromObject({
+          hours: 0, minutes: 0,
           seconds: Math.round(
             voiceItems.filter(ii =>
               ii.start > i.start && ii.start < i.end
             ).reduce((r, i) => r + i.length, 0)
           )
-        }).toISO();
+        }).normalize().toISO();
 
         retval.chapters.push(newSeg);
       } else if (i.name.startsWith('SEGLOOP ')) {
@@ -410,7 +417,7 @@ const SquareSymOps: SquareSymOpsType = {
     let lastStartPos: number = 72000000; // 2 hours
     for (let chap of data.chapters.slice().reverse()) {
       if (typeof chap.start == 'string') {
-        chap.start = Duration.fromISO(chap.start).milliseconds;
+        chap.start = Math.round(Duration.fromISO(chap.start).as('milliseconds'));
       }
       if (typeof chap.start != 'number') {
         chap.start = lastStartPos;
@@ -1338,17 +1345,19 @@ const ModSquareSym: React.FC = (props) => {
         JSON.parse(buffer.toString('utf8')) as ShowData,
         { inputfileObj, makeLog, doUpload, browser }
       ))
-      .then(() => {
+      .then(async () => {
         setError(null);
         setWaitMode(false);
         Orchestrator.clearAllSignals();
+        if (browser) (await browser).close();
       })
-      .catch((e: Error) => {
+      .catch(async (e: Error) => {
         console.error(e);
         setError(e.message);
         setWaitMode(false);
         Orchestrator.clearAllSignals();
         SquareSymOps.running = false;
+        if (browser) (await browser).close();
       });
 
     currentTarget.value = '';
@@ -1362,7 +1371,6 @@ const ModSquareSym: React.FC = (props) => {
   }
 
   const onShowDataChange = ({ currentTarget }: SyntheticEvent<HTMLSelectElement, Event>) => {
-    console.log('onShowDataChange', currentTarget.value);
     setShowData(currentTarget.value);
   }
 
