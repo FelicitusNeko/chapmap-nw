@@ -1335,10 +1335,11 @@ const ModSquareSym: React.FC = (props) => {
     const inputfileObj = files.item(0); if (!inputfileObj) return;
 
     setWaitMode(true);
+    econsole.debug(process.env);
 
     const browser = (makeLog || doUpload)
       ? Puppet.launch({
-        executablePath: process.env.PUPPETEER_CHROME_PATH, // define .env file with REACT_APP_PUPPETEER_CHROME_PATH
+        executablePath: process.env.REACT_APP_PUPPETEER_CHROME_PATH, // define .env file with REACT_APP_PUPPETEER_CHROME_PATH
         headless: !testOverride, slowMo: 25, defaultViewport: { width: 1350, height: 800 }
       })
       : undefined;
