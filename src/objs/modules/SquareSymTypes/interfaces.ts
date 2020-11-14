@@ -138,31 +138,14 @@ interface GuestData {
   /** Whether this person was a guest. If not, they will be handled as a mention. */
   _guest?: boolean;
 
-  /** This person's Bandcamp page, if any. This can just be their username. */
-  Bandcamp?: string;
-
-  /** This person's SoundCloud page, if any. This can just be their username. */
-  SoundCloud?: string;
-
-  /** This person's YouTube channel, if any. This can just be their channel name. */
-  YouTube?: string;
-
-  /** This person's Twitter page, if any. This can just be their username. */
-  Twitter?: string;
-
-  /** This person's Twitch stream, if any. This can just be their username. */
-  Twitch?: string;
-
-  /** This person's Facebook page, if any. This can just be their page name. */
-  Facebook?: string;
-
-  /** This person's Instagram page, if any. This can just be their username. */
-  Instagram?: string;
-
-  /** This person's Linktree page, if any. This can just be their username. */
-  Linktree?: string;
-
-  /** Any other links applicable to this person. This must be the full URL. */
+  /**
+   * Any links related to the guest or mention.
+   * 
+   * The following sites are recognised, and full URLs can be generated from user or account name:
+   * Bandcamp, SoundCloud, YouTube, Twitter, Twitch, Facebook, Instagram, Linktree
+   * 
+   * Any other sites must point to a full URL.
+   */
   links?: Record<string, string>;
 }
 
