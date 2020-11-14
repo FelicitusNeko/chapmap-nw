@@ -1280,8 +1280,10 @@ const SquareSymOps: SquareSymOpsType = {
         case url.startsWith('ckdu.ca/admin'):
           econsole.info('Log: Selecting log to fill...');
           let { airdate } = data;
+          let airdate2 = DateTime.fromFormat(airdate, 'MMMM d, y').toFormat('MMMM dd, yyyy');
           target = (await page.$x(`//a[contains(text(), '${airdate}')]`)).shift();
-          if (!target) econsole.warn(`Log: No log found for ${airdate}. Was it a special, or have you already filled it?`);
+          if (!target && airdate !== airdate2) target = (await page.$x(`//a[contains(text(), '${airdate2}')]`)).shift();
+          if (!target) econsole.warn(`Log: No log found for ${airdate2}. Was it a special, or have you already filled it?`);
           break;
 
         default:
