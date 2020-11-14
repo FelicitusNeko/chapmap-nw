@@ -402,6 +402,7 @@ const SquareSymOps: SquareSymOpsType = {
       internetRadioName: 'CKDU 88.1 FM Halifax',
       internetRadioOwner: 'Dalhousie University',
       genre: 'Podcast',
+      language: 'English',
       length: '0',
       year: data.year.toString(),
       originalFilename: `${outputfile}.mp3`,
