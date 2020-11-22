@@ -1,4 +1,5 @@
 import { ReaperNode, ReaperReader } from './ReaperReader';
+const econsole = console;
 
 export class ItemParser {
   public name: Readonly<string>;
@@ -14,6 +15,10 @@ export class ItemParser {
     this.start = ReaperReader.querySelectorAgain(input, 'POSITION')[0].params[0] as number;
     this.length = ReaperReader.querySelectorAgain(input, 'LENGTH')[0].params[0] as number;
     this.end = this.start + this.length;
-    this.source = ReaperReader.querySelectorAgain(input, 'SOURCE', 'FILE')[0].params[0] as string;
+    try { this.source = ReaperReader.querySelectorAgain(input, 'SOURCE', 'FILE')[0].params[0] as string; }
+    catch {
+      econsole.warn(`${this.name} does not have a source listed. Using the item name instead.`);
+      this.source = this.name; 
+    }
   }
 }
