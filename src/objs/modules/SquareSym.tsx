@@ -947,12 +947,12 @@ const SquareSymOps: SquareSymOpsType = {
           line.push(...(item.archives ? ['Archives Music', './Seg/archives.png'] : ['Music', './Mus/Seg/genericmusic.jpg']));
           line.push(item.displaySong ?? `${item.artist}~~${item.songTitle}`);
           if (typeof item.image == 'string') line.push(item.image);
-          else line.push(createImage({ artist: item.artist!, image: item.image }));
+          else line.push(createImage({ artist: item.artist ?? 'Unknown', image: item.image }));
           break;
         default:
           line.push(item.displayTitle ?? item.title, item.image ?? './Seg/sqsy.png', item.displaySong ?? `${item.artist}~~${item.songTitle}`);
           if (typeof item.songImage == 'string') line.push(item.songImage);
-          else line.push(createImage({ artist: item.artist!, image: item.songImage }));
+          else line.push(createImage({ artist: item.artist ?? 'Unknown', image: item.songImage }));
           break;
       }
 
@@ -1319,7 +1319,10 @@ const ModSquareSym: React.FC = (props) => {
 
     setWaitMode(true);
     ReaperReader.fromBlob(item)
-      .then(reaperData => SquareSymOps.ReaperProcess(item.name, reaperData))
+      .then(reaperData => {
+        console.debug(reaperData);
+        return SquareSymOps.ReaperProcess(item.name, reaperData);
+      })
       .then(() => {
         setError(null);
         setWaitMode(false);
@@ -1332,21 +1335,17 @@ const ModSquareSym: React.FC = (props) => {
     currentTarget.value = '';
   }
 
-  const onPodcastInput = ({ currentTarget }: SyntheticEvent<HTMLInputElement, Event>) => {
-    const { files } = currentTarget; if (!files) return;
-    const inputfileObj = files.item(0); if (!inputfileObj) return;
-
+  const doTheThing = async (inputfileObj: File | null) => {
     setWaitMode(true);
-    econsole.debug(process.env);
 
-    const browser = (makeLog || doUpload)
+    const browser = (makeLog || (doUpload && inputfileObj))
       ? Puppet.launch({
         executablePath: process.env.REACT_APP_PUPPETEER_CHROME_PATH, // define .env file with REACT_APP_PUPPETEER_CHROME_PATH
         headless: !testOverride, slowMo: 25, defaultViewport: { width: 1350, height: 800 }
       })
       : undefined;
 
-    fsPromises.readFile(`${BASE_DATAPATH}${showData}`)
+    return fsPromises.readFile(`${BASE_DATAPATH}${showData}`)
       .then(buffer => SquareSymOps.TagProcess(
         JSON.parse(buffer.toString('utf8')) as ShowData,
         { inputfileObj, makeLog, doUpload, browser }
@@ -1365,8 +1364,18 @@ const ModSquareSym: React.FC = (props) => {
         SquareSymOps.running = false;
         if (browser) (await browser).close();
       });
+  }
 
-    currentTarget.value = '';
+  const onPodcastInput = ({ currentTarget }: SyntheticEvent<HTMLInputElement, Event>) => {
+    const { files } = currentTarget; if (!files) return;
+    const inputfileObj = files.item(0); if (!inputfileObj) return;
+
+    doTheThing(inputfileObj).then(() => currentTarget.value = '');
+  }
+
+  const onPodcastNoInput = () => {
+    if (doUpload) econsole.warn('Warning: Podcast upload will not occur if no file is selected.');
+    doTheThing(null);
   }
 
   const onOptionsChange = ({ currentTarget }: SyntheticEvent<HTMLInputElement, Event>) => {
@@ -1417,7 +1426,8 @@ const ModSquareSym: React.FC = (props) => {
         Step 3: Tag the episode (and related operations)<br />
         <label><input type='checkbox' name='MakeLog' checked={makeLog} onChange={onOptionsChange} /> Compose station log</label><br />
         <label><input type='checkbox' name='DoUpload' checked={doUpload} onChange={onOptionsChange} /> Upload to podcast feed</label><br />
-        <input type='file' accept='.mp3' onInput={onPodcastInput} disabled={!showData} /> or <button disabled={!showData}>Only generate companion data</button>
+        <input type='file' accept='.mp3' onInput={onPodcastInput} disabled={!showData} />{' or '}
+        <button disabled={!showData} onClick={onPodcastNoInput}>Only generate companion data</button>
       </li>
     </ul>
   </>;
