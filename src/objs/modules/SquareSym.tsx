@@ -999,7 +999,7 @@ const SquareSymOps: SquareSymOpsType = {
             page.$('input#title'),
             page.$('input#description'),
             page.$('select#category'),
-            page.$('div[aria-label="Source code"] button'),
+            page.$('button[aria-label="Source code"]'),
             page.$('input[name=keywords]'),
             page.$('input[type=submit]'),
           ]);
@@ -1048,17 +1048,17 @@ const SquareSymOps: SquareSymOpsType = {
           // Fill in long description
           if (longDescSrcBtn) {
             await longDescSrcBtn.click();
-            await page.waitForTimeout(1000);
+            await page.waitForTimeout(200);
             const [longDescBox, longDescOk] = await Promise.all([
-              page.$('div[aria-label="Source code"] textarea'),
-              page.$('div[aria-label="Source code"] div.mce-foot button')
+              page.$('textarea.tox-textarea'),
+              page.$('button.tox-button[title=Save]')
             ]);
             if (longDescBox) await longDescBox.evaluate(
               (node: any, content: string) => node.value = content,
               (await waitOnSignal('companion')).longdesc as string
             );
             if (longDescOk) longDescOk.click();
-            await page.waitForTimeout(1000);
+            await page.waitForTimeout(200);
           }
 
           await uploadFile;
