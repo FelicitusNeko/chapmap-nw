@@ -946,12 +946,14 @@ const SquareSymOps: SquareSymOpsType = {
         case DataType.Music:
           line.push(...(item.archives ? ['Archives Music', './Seg/archives.png'] : ['Music', './Mus/Seg/genericmusic.jpg']));
           line.push(item.displaySong ?? `${item.artist}~~${item.songTitle}`);
-          if (typeof item.image == 'string') line.push(item.image);
+          if (!item.image) line.push('./Mus/Seg/genericmusic.jpg');
+          else if (typeof item.image == 'string') line.push(item.image);
           else line.push(createImage({ artist: item.artist ?? 'Unknown', image: item.image }));
           break;
         default:
           line.push(item.displayTitle ?? item.title, item.image ?? './Seg/sqsy.png', item.displaySong ?? `${item.artist}~~${item.songTitle}`);
-          if (typeof item.songImage == 'string') line.push(item.songImage);
+          if (!item.image) line.push('./Mus/Seg/genericmusic.jpg');
+          else if (typeof item.songImage == 'string') line.push(item.songImage);
           else line.push(createImage({ artist: item.artist ?? 'Unknown', image: item.songImage }));
           break;
       }
