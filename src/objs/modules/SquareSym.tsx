@@ -805,7 +805,7 @@ const SquareSymOps: SquareSymOpsType = {
     if (data.nextOnCKDU) {
       let nextData = [];
       for (const timeslot in data.nextOnCKDU) nextData.push(data.nextOnCKDU[timeslot], timeslot);
-      retval.push(format(credits.nextOnCKDU, ...(nextData.slice(1))));
+      retval.push(format(credits.nextOnCKDU, ...nextData));
     }
 
     retval.push(credits.end);
