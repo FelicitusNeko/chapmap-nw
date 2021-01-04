@@ -180,6 +180,9 @@ interface ShowData {
   /** Whether this episode is nonstandard. This will remove the 'Electric Leftovers' credit. */
   nonstandardEpisode?: boolean;
 
+  /** Whether the episode features explicit language. Unlikely to happen, but here just in case. */
+  explicitLanguage?: boolean;
+
   /** The data for each chapter of the show. */
   chapters: ShowChapterData[];
 

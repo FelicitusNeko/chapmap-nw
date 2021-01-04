@@ -1006,6 +1006,7 @@ const SquareSymOps: SquareSymOpsType = {
             page.$('input[type=submit]'),
           ]);
           const [pubDay, pubMonth, pubYear, pubHour, pubMinute] = await page.$$('select.input-sm');
+          const [explicit] = await page.$$('input[name=explicit]');
 
           // Provide location of output file
           const uploadFile = waitOnSignal('mp3tag')
@@ -1046,6 +1047,9 @@ const SquareSymOps: SquareSymOpsType = {
             pubHour.select(postDate.hour.toString()),
             pubMinute.select(postDate.minute.toString().padStart(2, '0'))
           ]);
+
+          // If explicit content, set the flag
+          if (data.explicitLanguage) await explicit.click();
 
           // Fill in long description
           if (longDescSrcBtn) {
