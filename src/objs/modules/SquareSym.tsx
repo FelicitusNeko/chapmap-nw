@@ -794,9 +794,13 @@ const SquareSymOps: SquareSymOpsType = {
   GenerateEndCredits: async (data: ShowData, { simpleSegList, segMusic }: GenerateCompanionOptions): Promise<string> => {
     const { credits } = sqsyCompanion;
     let retval = [];
+    let credited: Record<string, boolean> = {};
 
     if (!data.nonstandardEpisode) retval.push(credits.start);
-    for (const seg of simpleSegList) if (credits[seg]) retval.push(credits[seg]);
+    for (const seg of simpleSegList) if (credits[seg] && !credited[seg]) {
+      retval.push(credits[seg]);
+      credited[seg] = true;
+    }
 
     let segArtists = segMusic.map(i => i.artist === 'KewlioMZX' ? 'myself' : i.artist);
     segArtists.push('and ' + segArtists.pop());
@@ -822,6 +826,7 @@ const SquareSymOps: SquareSymOpsType = {
   GenerateLongDescription: async (data: ShowData, { simpleSegList, segMusic, playMusic }: GenerateCompanionOptions): Promise<string> => {
     const { longdesc } = sqsyCompanion;
     let retval: (string | null)[] = [], guests: string[] | null = null;
+    let credited: Record<string, boolean> = {};
 
     if (data.airdate) retval.push(format(longdesc.airdate, data.airdate.replace(/\d+,/, makeOrdinal)));
     retval.push(data.description);
@@ -882,7 +887,7 @@ const SquareSymOps: SquareSymOpsType = {
     }
 
     if (!data.nonstandardEpisode) retval.push(longdesc.start);
-    for (let seg of simpleSegList) if (longdesc[seg]) {
+    for (let seg of simpleSegList) if (longdesc[seg] && !credited[seg]) {
       if (seg === 'gnm') {
         /*let year = data.chapters.reduce((r, i) => {
           if (i.type != 'seg' || i.segType != 'gnm') return r;
@@ -891,6 +896,7 @@ const SquareSymOps: SquareSymOpsType = {
         retval.push(format(longdesc.gnm, data.year));
       }
       else retval.push(longdesc[seg]);
+      credited[seg] = true;
     }
 
     retval.push('Playlist is as follows:', null, 'Segment music is as follows:', null, longdesc.end1);
