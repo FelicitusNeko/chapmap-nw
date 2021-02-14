@@ -1198,7 +1198,7 @@ const SquareSymOps: SquareSymOpsType = {
             if (!readItem) break;
             // What kind of log entry is this?
             const identifier = await item.$('div.field');
-            const entryType = identifier ? (await identifier.getProperty('classList').then(r => r.jsonValue()) as string[])[1] : '';
+            const entryType = identifier ? (await identifier.getProperty('classList').then(r => r?.jsonValue()) as string[])[1] : '';
 
             switch (entryType) {
               case 'music': {
