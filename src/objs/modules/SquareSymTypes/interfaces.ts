@@ -84,6 +84,9 @@ interface SegmentChapterData extends ShowChapterData {
   /** The name of the game being covered in this segment, if applicable. */
   game?: string;
 
+  /** For the intro, whether videos mentioned are specific to LBG, or are based on LBG & friends' YouTube/Twitch channels. */
+  inAndAround?: boolean;
+
   /** For Archives segments, the game ID number on the LowBiasGaming page. */
   gameId?: number;
 
