@@ -365,7 +365,7 @@ const SquareSymOps: SquareSymOpsType = {
 
     for (let dir of dirs) {
       let subdirs = fs.readdirSync(`${BASE_DATAPATH}S${season}/${dir}/`, { withFileTypes: true })
-        .filter(i => i.isDirectory && i.name.substr(0, datestamp.length) === `${datestamp}` && i.name.includes(data.title))
+        .filter(i => i.isDirectory() && i.name.substr(0, datestamp.length) === `${datestamp}` && i.name.includes(data.title))
         .map(i => i.name);
       if (subdirs.length > 0) return `${BASE_DATAPATH}S${season}/${dir}/${subdirs[0]}/`;
     }
