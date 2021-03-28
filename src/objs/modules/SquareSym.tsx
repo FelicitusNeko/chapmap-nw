@@ -457,7 +457,7 @@ const SquareSymOps: SquareSymOpsType = {
               break;
 
             case SegmentType.Intro:
-              chap.tags.title = 'Intro & What\'s New at LowBiasGaming';
+              chap.tags.title = `Intro & What's New ${sItem.inAndAround ? 'in and around' : 'at'} LowBiasGaming`;
               url = 'https://lowbiasgaming.net/';
               altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
                 artist: 'KewlioMZX',
