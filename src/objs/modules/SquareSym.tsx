@@ -767,7 +767,7 @@ const SquareSymOps: SquareSymOpsType = {
     const sourceTags = id3.read(sourceFile);
     const { language } = sourceTags;
     const CanCon = getUserVal(sourceTags, 'CanCon') ?? false;
-    const hasLyrics = getUserVal(sourceTags, 'CanCon') ?? false;
+    const hasLyrics = getUserVal(sourceTags, 'HasLyrics') ?? false;
 
     let newSong = false;
     const { releaseDate } = sourceTags;
