@@ -595,6 +595,17 @@ const SquareSymOps: SquareSymOpsType = {
               });
               break;
 
+            case SegmentType.GameShowGeek:
+              chap.tags.title = `The Game Show Geek: ${item.title}`;
+
+              altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
+                displayTitle: item.displayTitle ?? `The Game Show Geek~~${item.title}`,
+                artist: 'radix',
+                songTitle: 'rainy summerdays',
+                songUrl: 'https://modarchive.org/index.php?request=view_by_moduleid&query=67590'
+              });
+              break;
+
             case SegmentType.DialogBox:
               chap.tags.title = `The Dialog Box w/ ${sItem.guest}`;
               chap.tags.image = `${BASE_DATAPATH}Seg/dialogbox.png`;
