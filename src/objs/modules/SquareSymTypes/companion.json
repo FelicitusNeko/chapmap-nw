@@ -1,6 +1,6 @@
 {
   "credits": {
-    "start": "Squarewave Symphony is based on the format of the Electric Leftovers podcast by Jason Parton of LowBiasGaming, lowbiasgaming.net.",
+    "start": "Squarewave Symphony is based on the format of the Electric Leftovers podcast by Jason Parton, anchor.fm/electricleftovers.",
     "notw": "News of the Weird is written by the editors at Andrews McMeel Syndication, newsoftheweird.com.",
     "gnm": "Gaming Next Month is powered by Game Informer, gameinformer.com.",
     "segmusic": "Segment music composed by %s.",
@@ -10,7 +10,7 @@
   "longdesc": {
     "airdate": "<i>Original air date: %s</i>",
     "noAirdate": "<i>This episode did not air on CKDU.</i>",
-    "start": "Squarewave Symphony is based on the format of the <a href=\"https://www.lowbiasgaming.net/electricleftovers/\">Electric Leftovers</a> podcast by Jason Parton of <a href=\"https://www.lowbiasgaming.net/\">LowBiasGaming</a>.",
+    "start": "Squarewave Symphony is based on the format of the <a href=\"https://www.anchor.fm/electricleftovers/\">Electric Leftovers</a> podcast by Jason Parton.",
     "notw": "<a href=\"https://uexpress.com/news-of-the-weird/\">News of the Weird</a> is written by the editors at Andrews McMeel Syndication.",
     "gnm": "Gaming Next Month is powered by <a href=\"https://www.gameinformer.com/%s\">Game Informer</a>.",
     "end1": "Comments? Questions? Want your chiptunes featured on the show? <a href=\"mailto:squaresym@lowbiasgaming.net\">Email me</a> or get in touch on <a href=\"https://twitter.com/squaresym\">Twitter</a>.",
