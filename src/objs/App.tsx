@@ -1,7 +1,8 @@
 import React from 'react';
 import '../css/App.css';
 
-import ModSquareSym from './modules/SquareSym';
+//import ModSquareSym from './modules/SquareSym';
+import ModSqSyNewsByte from './modules/SqSyNewsByte';
 
 const App: React.FC = () => {
   return (
@@ -9,11 +10,12 @@ const App: React.FC = () => {
       <hgroup>
         <header>ChapMap</header>
       </hgroup>
-      Module: <select>
-        <option>Squarewave Symphony</option>
+      Module: <select defaultValue="SqSyNewsByte">
+        <option value="SquareSym">Squarewave Symphony</option>
+        <option value="SqSyNewsByte">Squarewave Symphony NewsByte</option>
       </select>
       <br />
-      <ModSquareSym />
+      <ModSqSyNewsByte />
     </div>
   );
 }
