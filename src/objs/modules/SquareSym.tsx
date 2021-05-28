@@ -488,7 +488,7 @@ const SquareSymOps: SquareSymOpsType = {
               chap.tags.image = `${BASE_DATAPATH}Seg/notw.png`;
               if (sItem.guest) chap.tags.title += ` w/ ${sItem.guest}`;
               if (sItem.weather) chap.tags.title += ' & Halifax Weather';
-              if (sItem.newsDate) url = `https://uexpress.com/news-of-the-weird/${sItem.newsDate}`;
+              if (sItem.newsDate) url = `https://uexpress.com/oddities/news-of-the-weird/${sItem.newsDate}`;
 
               altData = Object.assign<AlternateData, Partial<AlternateData>>(altData, {
                 displayTitle: chap.tags.title,
