@@ -186,7 +186,7 @@ const SquareSymOps: SquareSymOpsType = {
     let retval: ShowData = {
       year: (new Date()).getFullYear(),
       airdate: showDate.toFormat('MMMM dd, yyyy'),
-      shortAirdate: showDate.toFormat('yyyyddMM'),
+      shortAirdate: showDate.toFormat('yyyyMMdd'),
       description: '',
       chapters: []
     };
@@ -226,7 +226,7 @@ const SquareSymOps: SquareSymOpsType = {
           case i.name.startsWith('SEG 03'):
             newSeg.segType = SegmentType.NewsOfTheWeird;
             //console.debug(showDate.format('YYYY/M/D'), moment(showDate).subtract(1, 'week').format('YYYY/M/D'));
-            newSeg.newsDate = showDate.minus({ weeks: 1 }).toFormat('y/M/d')
+            newSeg.newsDate = showDate.minus({ days: 3 }).toFormat('y/MM/dd')
             break;
           case i.name.startsWith('SEG 04'):
             newSeg.segType = SegmentType.GamingNextMonth;

@@ -1,12 +1,13 @@
 {
   "credits": {
-    "start": "OPEN: You're listening to CKDU, 88.1 FM Halifax, and it's time now for the Squarewave Symphony NewsByte! Hey, it's Kewlio, if you don't know, and let's get into the News of the Weird for the week of %s.\n\nCLOSE:\nIf you enjoyed what you just heard, or the music you're about to hear, then you can catch more of it in the full show, Squarewave Symphony, Fridays at 5 PM here on CKDU. You can follow the show on Twitter, @SquareSym.",
+    "start": "OPEN: You're listening to CKDU, 88.1 FM Halifax, and it's time now for the Squarewave Symphony NewsByte! Hey, it's Kewlio, if you don't know, and let's get into the News of the Weird for the week of %s.\n\nCLOSE:\nIf you enjoyed what you just heard, or the chiptunes you're about to hear, then you can catch more of it in the full show, Squarewave Symphony, Fridays at 5 PM here on CKDU. You can follow the show on Twitter, @SquareSym.",
     "notw": "News of the Weird is written by the editors at Andrews McMeel Syndication, newsoftheweird.com.",
     "segmusic": "The background song was 'feel the vibes' by twilight/defekt.",
     "end": "I leave you now with [list songs] before returning you to the world of normal.\n\nThis has been the Squarewave Symphony NewsByte on CKDU, 88.1 FM Halifax; I'm Kewlio, if you don't know, and I'll see you guys next time."
   },
   "longdesc": {
     "notw": "<a href=\"https://uexpress.com/news-of-the-weird/\">News of the Weird</a> is written by the editors at Andrews McMeel Syndication.",
+    "segmusic": "The background song was 'feel the vibes' by twilight/defekt.",
     "end1": "Comments? Questions? Want your chiptunes featured on the show? <a href=\"mailto:squaresym@lowbiasgaming.net\">Email me</a> or get in touch on <a href=\"https://twitter.com/squaresym\">Twitter</a>."
   }
 }
