@@ -27,17 +27,6 @@ const CKDU_NEWTRACK_MAXMONTHS = 6;
 const BASE_OUTPUTPATH = './output/SqSyNewsByte/';
 const BASE_DATAPATH = './showdata/SqSyNewsByte/';
 
-const makeOrdinal = (date: string) => {
-  const dateNum = parseInt(date);
-  if (Math.floor(dateNum / 10) % 10 === 1) return `${dateNum}th,`;
-  else switch (dateNum % 10) {
-    case 1: return `${dateNum}st,`
-    case 2: return `${dateNum}nd,`
-    case 3: return `${dateNum}rd,`
-    default: return `${dateNum}th,`
-  }
-}
-
 type ChapterData = {
   elementID: string;
   startTimeMs: number;
@@ -603,7 +592,6 @@ const SquareSymOps: SquareSymOpsType = {
     const { longdesc } = sqsyCompanion;
     let retval: (string | null)[] = [], guests: string[] | null = null;
 
-    if (data.airdate) retval.push(format(longdesc.airdate, data.airdate.replace(/\d+,/, makeOrdinal)));
     retval.push(data.description);
 
     if (data.guest) {
@@ -661,7 +649,7 @@ const SquareSymOps: SquareSymOpsType = {
       guests.push('</ul>');
     }
 
-    retval.push('Playlist is as follows:', null, longdesc.end1);
+    retval.push('Playlist is as follows:', null);
 
     let playlists = [];
     for (let playlist of [playMusic]) {
@@ -679,6 +667,8 @@ const SquareSymOps: SquareSymOpsType = {
     }
 
     retval.push('Background music was "feel the vibes" by twilight/defekt.');
+    retval.push(`<a href="https://www.uexpress.com/oddities/news-of-the-weird/${DateTime.fromFormat(data.shortAirdate, 'yyyyMMdd').minus({ days: 3 }).toFormat('y/MM/dd')}">News of the Weird</a> is written by the editors at Andrews McMeel Syndication.`);
+    retval.push(longdesc.end1);
 
     retval = retval.map(i => i ? `<p>${i}</p>` : i);
     if (guests && retval.indexOf(null) >= 0) retval.splice(retval.indexOf(null), 1, ...guests);
@@ -781,7 +771,7 @@ const SquareSymOps: SquareSymOpsType = {
 
           econsole.info('Podcast: Populating form...');
           // Fill in title and show description
-          if (title) await title.type(`SqSy NewsByte for ${data.airdate}`);
+          if (title) await title.type(`NewsByte for ${data.airdate}`);
           if (shortDesc) await shortDesc.type(data.description);
 
           // Select categories
